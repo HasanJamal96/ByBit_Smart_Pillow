@@ -31,13 +31,13 @@ void ServerRoutes(){
 
 /////////////////////////////js///////////////////////
   server.on("/static/js/2.7f4f1505.chunk.js", HTTP_GET, [](AsyncWebServerRequest *request){
-    request->send_P(200, "text/javascript", chunk_2_7);
+    request->send_P(200, "text/javascript", chunk_2_9);
   });
   server.on("/static/js/2.7f4f1505.chunk.js.LICENSE.txt", HTTP_GET, [](AsyncWebServerRequest *request){
     request->send_P(200, "text/plain", license);
   });
   server.on("/static/js/2.7f4f1505.chunk.js.map", HTTP_GET, [](AsyncWebServerRequest *request){
-    request->send_P(200, "application/unknown", chunk_2_7_map);
+    request->send_P(200, "application/unknown", chunk_2_9_map);
   });
   server.on("/static/js/3.1dc319fa.chunk.js", HTTP_GET, [](AsyncWebServerRequest *request){
     request->send_P(200, "text/javascript", chunk_3_1);
@@ -333,6 +333,13 @@ void ServerRoutes(){
     UpdateStatus = true;
     request->send(200, "text/plain", "ok");
   });
+
+  server.on("/HardResetSmartPillow", HTTP_GET, [](AsyncWebServerRequest *request){
+    doReset = true;
+    request->send(200, "text/plain", "Ok");
+  });
+
+  
   server.onNotFound([](AsyncWebServerRequest *request){
     #ifdef DEBUG
       Serial.print("Route does not exist: ");

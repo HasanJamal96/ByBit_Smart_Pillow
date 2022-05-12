@@ -56,6 +56,11 @@ uint8_t voltageThreshold = 4; //below this voltage battery LED will light up
 #define M1_BITMASK 0x5000
 #define M3_BITMASK 0x8001000
 
+
+// Hard Reset
+bool doReset = false;
+
+
 //Vibrator Motors
 const uint8_t vibrator_pins[4] = {4,16,17,5};
 bool doVibrate = false;
@@ -135,7 +140,7 @@ public:
   }
 
   void handleRequest(AsyncWebServerRequest *request){
-    if(request->url() == "/connecttest.txt" || request->url() == "/redirect" || request->url() == "/generate_204" || request->url() == "/fwlink")
+    if(request->url() == "/connecttest.txt" || request->url() == "/redirect" || request->url() == "/generate_204" || request->url() == "/fwlink" || request->url() == "/hotspot-detect.html")
       request->redirect("http://8.8.8.8/");
     else
       request->send(200, "text/html", HTML);
@@ -779,6 +784,27 @@ void loop(){
       saveCreds();
       SetupWiFi();
     }
+    if(doReset){
+      #ifdef DEBUG
+        Serial.println("[SPIFFS] Deleting files");
+      #endif
+      SPIFFS.remove("/log.txt");
+      SPIFFS.remove("/status.json");
+      SPIFFS.remove("/creds.json");
+      SPIFFS.remove("/triggers.json");
+      SPIFFS.remove("/coins.json");
+      VibrationChecked = "false";
+      landing = "false";
+      savestatus();
+      for(int R=0; R<MAX; R++){
+        Coins[R] = "";
+        Triggers[R] = 0;
+      }
+      #ifdef DEBUG
+        Serial.println("[SPIFFS] Successfully deleted");
+      #endif
+    }
+    doReset = false;
   }
   if(Mode != 1 && !WiFiconnected && (ReasonID != 202) && !manual && wifi_ssid != ""){
     if(CurrentTime - LastRun > WIFI_RETRY_AFTER){
